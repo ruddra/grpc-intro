@@ -46,6 +46,37 @@ public final class BankServiceGrpc {
     return getGetBalanceMethod;
   }
 
+  private static volatile io.grpc.MethodDescriptor<org.example.models.WithdrawRequest,
+      org.example.models.Money> getWithdrawMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "withdraw",
+      requestType = org.example.models.WithdrawRequest.class,
+      responseType = org.example.models.Money.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+  public static io.grpc.MethodDescriptor<org.example.models.WithdrawRequest,
+      org.example.models.Money> getWithdrawMethod() {
+    io.grpc.MethodDescriptor<org.example.models.WithdrawRequest, org.example.models.Money> getWithdrawMethod;
+    if ((getWithdrawMethod = BankServiceGrpc.getWithdrawMethod) == null) {
+      synchronized (BankServiceGrpc.class) {
+        if ((getWithdrawMethod = BankServiceGrpc.getWithdrawMethod) == null) {
+          BankServiceGrpc.getWithdrawMethod = getWithdrawMethod =
+              io.grpc.MethodDescriptor.<org.example.models.WithdrawRequest, org.example.models.Money>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "withdraw"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.example.models.WithdrawRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  org.example.models.Money.getDefaultInstance()))
+              .setSchemaDescriptor(new BankServiceMethodDescriptorSupplier("withdraw"))
+              .build();
+        }
+      }
+    }
+    return getWithdrawMethod;
+  }
+
   /**
    * Creates a new async stub that supports all call types for the service
    */
@@ -101,6 +132,13 @@ public final class BankServiceGrpc {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetBalanceMethod(), responseObserver);
     }
 
+    /**
+     */
+    public void withdraw(org.example.models.WithdrawRequest request,
+        io.grpc.stub.StreamObserver<org.example.models.Money> responseObserver) throws InterruptedException {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getWithdrawMethod(), responseObserver);
+    }
+
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
           .addMethod(
@@ -110,6 +148,13 @@ public final class BankServiceGrpc {
                 org.example.models.BalanceCheckRequest,
                 org.example.models.Balance>(
                   this, METHODID_GET_BALANCE)))
+          .addMethod(
+            getWithdrawMethod(),
+            io.grpc.stub.ServerCalls.asyncServerStreamingCall(
+              new MethodHandlers<
+                org.example.models.WithdrawRequest,
+                org.example.models.Money>(
+                  this, METHODID_WITHDRAW)))
           .build();
     }
   }
@@ -135,6 +180,14 @@ public final class BankServiceGrpc {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getGetBalanceMethod(), getCallOptions()), request, responseObserver);
     }
+
+    /**
+     */
+    public void withdraw(org.example.models.WithdrawRequest request,
+        io.grpc.stub.StreamObserver<org.example.models.Money> responseObserver) {
+      io.grpc.stub.ClientCalls.asyncServerStreamingCall(
+          getChannel().newCall(getWithdrawMethod(), getCallOptions()), request, responseObserver);
+    }
   }
 
   /**
@@ -156,6 +209,14 @@ public final class BankServiceGrpc {
     public org.example.models.Balance getBalance(org.example.models.BalanceCheckRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getGetBalanceMethod(), getCallOptions(), request);
+    }
+
+    /**
+     */
+    public java.util.Iterator<org.example.models.Money> withdraw(
+        org.example.models.WithdrawRequest request) {
+      return io.grpc.stub.ClientCalls.blockingServerStreamingCall(
+          getChannel(), getWithdrawMethod(), getCallOptions(), request);
     }
   }
 
@@ -183,6 +244,7 @@ public final class BankServiceGrpc {
   }
 
   private static final int METHODID_GET_BALANCE = 0;
+  private static final int METHODID_WITHDRAW = 1;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -204,6 +266,14 @@ public final class BankServiceGrpc {
         case METHODID_GET_BALANCE:
           serviceImpl.getBalance((org.example.models.BalanceCheckRequest) request,
               (io.grpc.stub.StreamObserver<org.example.models.Balance>) responseObserver);
+          break;
+        case METHODID_WITHDRAW:
+          try {
+            serviceImpl.withdraw((WithdrawRequest) request,
+                (io.grpc.stub.StreamObserver<Money>) responseObserver);
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
           break;
         default:
           throw new AssertionError();
@@ -267,6 +337,7 @@ public final class BankServiceGrpc {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new BankServiceFileDescriptorSupplier())
               .addMethod(getGetBalanceMethod())
+              .addMethod(getWithdrawMethod())
               .build();
         }
       }
