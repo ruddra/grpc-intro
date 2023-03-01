@@ -3,10 +3,8 @@ package org.example.client;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.example.models.Balance;
-import org.example.models.BalanceCheckRequest;
-import org.example.models.BankServiceGrpc;
-import org.example.models.WithdrawRequest;
+import io.grpc.stub.StreamObserver;
+import org.example.models.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -52,7 +50,18 @@ public class BankClientTest {
         WithdrawRequest withdrawRequest = WithdrawRequest.newBuilder().setAccountNumber(8).setAmount(40).build();
         this.bankServiceStub.withdraw(withdrawRequest, new MoneyStreamingResponse(countDownLatch));
         countDownLatch.await();
-//        Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void cashStreamingRequest() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        StreamObserver<DepositRequest>  streamObserver = this.bankServiceStub.cashDeposit(new BalanceStreamObserver(latch));
+        for (int i = 0; i < 10; i++) {
+            DepositRequest depositRequest = DepositRequest.newBuilder().setAmount(8).setAmount(10).build();
+            streamObserver.onNext(depositRequest);
+        }
+        streamObserver.onCompleted();
+        latch.await();
     }
 
 

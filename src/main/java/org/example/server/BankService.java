@@ -17,7 +17,7 @@ public class BankService  extends BankServiceGrpc.BankServiceImplBase {
     }
 
     @Override
-    public void withdraw(WithdrawRequest request, StreamObserver<Money> responseObserver) throws InterruptedException {
+    public void withdraw(WithdrawRequest request, StreamObserver<Money> responseObserver) {
 //        super.withdraw(request, responseObserver);
         int accountNumber = request.getAccountNumber();
         int amount = request.getAmount();
@@ -31,9 +31,13 @@ public class BankService  extends BankServiceGrpc.BankServiceImplBase {
             Money money = Money.newBuilder().setValue(10).build();
             responseObserver.onNext(money);
             AccountDatabase.deductBalance(accountNumber, 10);
-            Thread.sleep(1000);
+//            Thread.sleep(1000);
         }
         responseObserver.onCompleted();
     }
 
+    @Override
+    public StreamObserver<DepositRequest> cashDeposit(StreamObserver<Balance> responseObserver) {
+        return new CashStreamingRequest(responseObserver);
+    }
 }
