@@ -1,24 +1,34 @@
-package org.example.client;
+package org.example.client.loadbalancing;
 
-import com.google.common.util.concurrent.Uninterruptibles;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.NameResolverRegistry;
 import io.grpc.stub.StreamObserver;
+import org.example.client.rpctypes.BalanceStreamObserver;
+import org.example.client.rpctypes.MoneyStreamingResponse;
 import org.example.models.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class BankClientTest {
-    BankServiceGrpc.BankServiceBlockingStub blockingStub;
-    BankServiceGrpc.BankServiceStub bankServiceStub;
+public class ClientSideLoadBalancingTest {
+    private BankServiceGrpc.BankServiceBlockingStub blockingStub;
+    private BankServiceGrpc.BankServiceStub bankServiceStub;
+
     @BeforeAll
-    public void setup(){
-       ManagedChannel managedChannel = ManagedChannelBuilder.forAddress("localhost", 6565)
+    public void setup() {
+        List<String> instances = new ArrayList<>();
+        instances.add("localhost:6565");
+        instances.add("localhost:7575");
+        ServiceRegistry.register("bank-service", instances);
+        NameResolverRegistry.getDefaultRegistry().register(new TmpNameResolverProvider());
+        ManagedChannel managedChannel = ManagedChannelBuilder
+                .forTarget("http://bank-service")
+                .defaultLoadBalancingPolicy("round_robin")
                 .usePlaintext()
                 .build();
 
@@ -28,18 +38,22 @@ public class BankClientTest {
 
     @Test
     public void balanceTest() {
-       BalanceCheckRequest balanceCheckRequest = BalanceCheckRequest.newBuilder()
-                .setAccountNumber(123)
-                .build();
-        Balance balance = this.blockingStub.getBalance(balanceCheckRequest);
+        for (int i = 1; i < 11; i++) {
 
-        System.out.println(
-                "Recieved: " + balance.getAmount()
-        );
+            BalanceCheckRequest balanceCheckRequest = BalanceCheckRequest.newBuilder()
+                    .setAccountNumber(i)
+                    .build();
+            Balance balance = this.blockingStub.getBalance(balanceCheckRequest);
+
+            System.out.println(
+                    "Recieved: " + balance.getAmount()
+            );
+        }
+
     }
 
     @Test
-    public void withdrawTest(){
+    public void withdrawTest() {
         WithdrawRequest withdrawRequest = WithdrawRequest.newBuilder().setAccountNumber(7).setAmount(40).build();
         this.blockingStub.withdraw(withdrawRequest).forEachRemaining(money -> System.out.println("Received" + money.getValue()));
     }
@@ -55,14 +69,12 @@ public class BankClientTest {
     @Test
     public void cashStreamingRequest() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        StreamObserver<DepositRequest>  streamObserver = this.bankServiceStub.cashDeposit(new BalanceStreamObserver(latch));
+        StreamObserver<DepositRequest> streamObserver = this.bankServiceStub.cashDeposit(new BalanceStreamObserver(latch));
         for (int i = 0; i < 10; i++) {
-            DepositRequest depositRequest = DepositRequest.newBuilder().setAmount(8).setAmount(10).build();
+            DepositRequest depositRequest = DepositRequest.newBuilder().setAccountNumber(8).setAmount(10).build();
             streamObserver.onNext(depositRequest);
         }
         streamObserver.onCompleted();
         latch.await();
     }
-
-
 }

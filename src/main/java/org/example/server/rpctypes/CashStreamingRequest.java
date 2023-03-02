@@ -1,4 +1,4 @@
-package org.example.server;
+package org.example.server.rpctypes;
 
 import io.grpc.stub.StreamObserver;
 import org.example.models.Balance;

@@ -1,4 +1,4 @@
-package org.example.server;
+package org.example.server.rpctypes;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;

@@ -1,19 +1,15 @@
-package org.example.client;
+package org.example.client.rpctypes;
 
-import com.google.common.util.concurrent.Uninterruptibles;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import org.example.models.*;
-import org.example.server.TransferService;
-import org.example.server.TransferStreamingResponse;
-import org.junit.jupiter.api.BeforeAll;
+import org.example.server.rpctypes.TransferStreamingResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TranferClientTest {
