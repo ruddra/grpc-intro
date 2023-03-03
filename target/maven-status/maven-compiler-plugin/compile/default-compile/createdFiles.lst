@@ -4,7 +4,10 @@ org\example\models\DepositRequestOrBuilder.class
 org\example\models\Balance$1.class
 org\example\models\Account$Builder.class
 org\example\models\BankServiceGrpc$BankServiceBaseDescriptorSupplier.class
+org\example\models\ErrorMessage.class
+org\example\models\WithdrawalError$Builder.class
 org\example\models\Balance.class
+org\example\models\WithdrawalError.class
 org\example\models\BankServiceGrpc$BankServiceStub.class
 org\example\models\TransferServiceGrpc.class
 org\example\models\MoneyOrBuilder.class
@@ -34,6 +37,7 @@ org\example\models\TransferRequest$1.class
 org\example\models\BankServiceOuterClass.class
 org\example\models\TransferServer.class
 org\example\models\DepositRequest.class
+org\example\models\WithdrawalError$1.class
 org\example\models\TransferResponse$Builder.class
 org\example\models\Money$Builder.class
 org\example\models\TransferStatus.class
@@ -47,7 +51,9 @@ org\example\models\TransferResponseOrBuilder.class
 org\example\models\WithdrawRequest$1.class
 org\example\models\Account.class
 org\example\models\BankServiceGrpc$BankServiceImplBase.class
+org\example\models\WithdrawalErrorOrBuilder.class
 org\example\models\DepositRequest$1.class
+org\example\models\ErrorMessage$1.class
 org\example\models\BalanceCheckRequestOrBuilder.class
 org\example\models\BankServiceGrpc$BankServiceFileDescriptorSupplier.class
 org\example\models\TransferRequestOrBuilder.class

@@ -2,7 +2,9 @@ package org.example.server.metadata;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.grpc.Context;
+import io.grpc.Metadata;
 import io.grpc.Status;
+import io.grpc.protobuf.ProtoUtils;
 import io.grpc.stub.StreamObserver;
 import org.example.models.*;
 import org.example.server.loadbalancing.CashStreamingRequest;
@@ -35,9 +37,19 @@ public class MetadataService extends BankServiceGrpc.BankServiceImplBase {
         int accountNumber = request.getAccountNumber();
         int amount = request.getAmount();
         int balance = AccountDatabase.getBalance(accountNumber);
+        Metadata metadata  = new Metadata();
+        Metadata.Key<WithdrawalError> errorKey = ProtoUtils.keyForProto(WithdrawalError.getDefaultInstance());
+        if (amount < 10 || (amount%10)!=0){
+            var withdrawalError = WithdrawalError.newBuilder().setAmount(balance).setErrorMessage(ErrorMessage.ONLY_TEN_MULTIPLES).build();
+            metadata.put(errorKey, withdrawalError);
+            responseObserver.onError(Status.FAILED_PRECONDITION.asRuntimeException(metadata));
+            return;
+        }
+
         if (balance < amount) {
-            Status status = Status.FAILED_PRECONDITION.withDescription("Not enough money");
-            responseObserver.onError(status.asRuntimeException());
+            var withdrawalError = WithdrawalError.newBuilder().setAmount(balance).setErrorMessage(ErrorMessage.INSUFFICIENT_BALANCE).build();
+            metadata.put(errorKey, withdrawalError);
+            responseObserver.onError(Status.FAILED_PRECONDITION.asRuntimeException(metadata));
             return;
         }
         for (int i=0; i<(amount/10);i++){
